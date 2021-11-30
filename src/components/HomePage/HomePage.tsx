@@ -4,8 +4,9 @@ import Header from "../Header/Header";
 // import homePageBackground from '../../images/homePageBackground.jpg'
 const styles: StyleRules  = { 
   root: {
-    height: "100%",
+    // height: "100%",
     // height: "400px",
+    backgroundPosition:'center'
   },
   footer: {
     color: "red"
