@@ -8,7 +8,9 @@ const styles: StyleRules  = {
     display:"flex",
     backgroundColor:"white",
     position:'sticky',
-    top:0
+    top:0,
+    opacity: '1',
+    zIndex: '1000'
   },
   logo: {
     height: "50px",

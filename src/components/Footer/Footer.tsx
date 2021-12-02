@@ -4,8 +4,6 @@ const styles: StyleRules = {
   root: {
     height: "50px",
     borderTop: "1px solid black",
-    marginTop: "50px",
-    backgroundColor: "white",
   },
   image: {
     height: "40px",
@@ -18,18 +16,20 @@ const styles: StyleRules = {
   },
   rightsReserved: {
     borderTop: "1px solid black",
-    marginTop: "10px",
     display: "flex",
     flexDirection: "column",
+    textAlign: 'center',
+    lineHeight: '24px'
   },
   footerOptions: {
     display: "flex",
     flexDirection: "row",
+    lineHeight: '24px',
     gap: 50,
-    justifyContent:"center",
-    alignItems:"center",
-    paddingTop:"1%",
-    paddingBottom:"1%"
+    justifyContent: "center",
+    alignItems: "center",
+    paddingTop: "1%",
+    paddingBottom: "1%",
   },
 };
 interface IFooterProp extends WithStyles<typeof styles> {}

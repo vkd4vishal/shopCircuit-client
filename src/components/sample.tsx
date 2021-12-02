@@ -10,7 +10,9 @@ const styles = {
 };
 interface loginProp extends WithStyles<typeof styles> {}
 const loginFormView: React.FC<loginProp> = ({ classes }) => {
-  return <div className={classes.root}></div>;
+  return <div className={classes.root}>
+    
+  </div>;
 };
 
 const loginForm = withStyles(styles)(loginFormView);
