@@ -2,6 +2,7 @@ import { Alert, Button, Snackbar, TextField } from "@mui/material";
 import { StyleRules, WithStyles, withStyles } from "@mui/styles";
 import axios from "axios";
 import React from "react";
+import Link from "@mui/material/Link";
 const styles = (): StyleRules => {
   return {
     root: {
@@ -52,8 +53,10 @@ const styles = (): StyleRules => {
     },
   };
 };
-interface ILoginProp extends WithStyles<typeof styles> {}
-const LoginFormView: React.FC<ILoginProp> = ({ classes }) => {
+interface ILoginProp extends WithStyles<typeof styles> {
+  login:(value:boolean)=>void
+}
+const LoginFormView: React.FC<ILoginProp> = ({ classes,login }) => {
   //States
   const [userName, setUserName] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -140,6 +143,9 @@ const LoginFormView: React.FC<ILoginProp> = ({ classes }) => {
         >
           Login
         </Button>
+        <Link variant="body2"  onClick={()=>{login(false)}} style={{cursor:'pointer'}}>
+        Don't have an account? Create now.
+      </Link>
       </form>
     </div>
   );

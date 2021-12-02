@@ -2,7 +2,8 @@ import { StyleRules, WithStyles, withStyles } from "@mui/styles";
 import React from "react";
 import FooterForm from "../Footer/Footer";
 import Header from "../Header/Header";
-import SignUp from "../Signup/Signup";
+import LoginForm from "../LoginPage/Login";
+import SignUpForm from "../Signup/Signup";
 // import homePageBackground from '../../images/homePageBackground.jpg'
 const styles: StyleRules = {
   root: {
@@ -39,7 +40,7 @@ const styles: StyleRules = {
 };
 interface IHomePage extends WithStyles<typeof styles> {}
 const HomePageView: React.FC<IHomePage> = ({ classes }) => {
-  const [toLogin, setToLogin] = React.useState(false);
+  const [loggedIn, setLoggedIn] = React.useState(false);
   return (
     <div className={classes.root}>
       <Header />
@@ -53,7 +54,7 @@ const HomePageView: React.FC<IHomePage> = ({ classes }) => {
           needs at your doorstep. There is something for everyone here.
           Groceries items,medical items,electrical items,books and many more.
         </div>
-        <SignUp/>
+      {loggedIn?<LoginForm login={setLoggedIn}/>:<SignUpForm login={setLoggedIn}/>}
       </div>
 
       <FooterForm />
