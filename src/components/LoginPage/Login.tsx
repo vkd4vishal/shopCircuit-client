@@ -94,7 +94,7 @@ const LoginFormView: React.FC<ILoginProp> = ({ classes,login }) => {
       console.log(response.data);
       setServerData(response.data.message);
       setSuccess(true);
-    });
+    }).catch((err)=> console.log(err.message));
   };
 
   const isEmail = (value: string) => {
@@ -120,7 +120,7 @@ const LoginFormView: React.FC<ILoginProp> = ({ classes,login }) => {
         <h3 className={classes.headerText}>Log in to ShopCircuit</h3>
         <TextField
           variant="outlined"
-          label="Username"
+          label="Username or email"
           required
           className={classes.username}
           value={userName}

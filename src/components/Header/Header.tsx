@@ -1,5 +1,5 @@
 import { WithStyles, withStyles , StyleRules } from "@mui/styles";
-import logo from "../../images/logo.svg";
+import logo from "../../Images/logo.svg";
 const styles: StyleRules  = {
   root: {
     height: "60px",

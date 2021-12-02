@@ -1,5 +1,5 @@
 import { StyleRules, WithStyles, withStyles } from "@mui/styles";
-import twitter from "../../images/twitter.svg";
+import twitter from "../../Images/twitter.svg";
 const styles: StyleRules = {
   root: {
     height: "50px",
