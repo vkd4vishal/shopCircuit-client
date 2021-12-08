@@ -1,11 +1,7 @@
 import { WithStyles, withStyles } from "@mui/styles";
 const styles = {
   root: {
-    height: "400px",
-    width: "600px",
-  },
-  loginButton: {
-    color: "red",
+  
   },
 };
 interface loginProp extends WithStyles<typeof styles> {}

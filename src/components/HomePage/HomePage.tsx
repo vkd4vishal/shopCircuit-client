@@ -1,9 +1,6 @@
 import { StyleRules, WithStyles, withStyles } from "@mui/styles";
 import React from "react";
-import FooterForm from "../Footer/Footer";
-import Header from "../Header/Header";
-import LoginForm from "../LoginPage/Login";
-import SignUpForm from "../Signup/Signup";
+import Profile from "../Profile/Profile";
 // import homePageBackground from '../../images/homePageBackground.jpg'
 const styles: StyleRules = {
   root: {
@@ -25,25 +22,25 @@ const styles: StyleRules = {
     fontStyle: "italic",
     marginLeft: "30%",
     height: "300px",
-    marginTop: '20px'
+    marginTop: "20px",
   },
   content: {
     display: "flex",
-    height: '900px',
+    height: "900px",
     gap: "100px",
     marginLeft: "auto",
     marginRight: "auto",
     backgroundImage: 'url("/background1080.jpg")',
-    backgroundPosition: 'center',
-    backgroundSize: '1920px 900px'
+    backgroundPosition: "center",
+    backgroundSize: "1920px 900px",
   },
 };
 interface IHomePage extends WithStyles<typeof styles> {}
 const HomePageView: React.FC<IHomePage> = ({ classes }) => {
-  const [loggedIn, setLoggedIn] = React.useState(false);
+  // const [loggedIn, setLoggedIn] = React.useState(false);
   return (
     <div className={classes.root}>
-      <Header />
+      {/* <Header />
       <div className={classes.content}>
         <div className={classes.shopCircuitMessage}>
           ShopCircuit: Delivering Happiness What's better than having stores at
@@ -56,8 +53,9 @@ const HomePageView: React.FC<IHomePage> = ({ classes }) => {
         </div>
       {loggedIn?<LoginForm login={setLoggedIn}/>:<SignUpForm login={setLoggedIn}/>}
       </div>
-
-      <FooterForm />
+      
+      <FooterForm /> */}
+      <Profile />
     </div>
   );
 };
