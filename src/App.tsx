@@ -6,6 +6,7 @@ import { loaderContext } from "./components/common/loader/loaderContext";
 import HomePage from "./components/HomePage/HomePage";
 import RatingAndReviewForm from "./components/ratingAndReview/ratingAndReview";
 import RatingAndReviewListForm from "./components/ratingAndReview/ratingAndReviewList";
+import ItemMaintenanceForm from "./components/ItemMaintenance/itemMaintenance";
 // import LoginForm from "./components/LoginPage/Login";
 import SignUpForm from "./components/Signup/Signup";
 // import RatingAndReviewBoxForm from "./components/ratingAndReview/ratingAndReviewBox";
