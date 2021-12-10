@@ -60,7 +60,6 @@ const SignUpFormView: React.FC<SignUpProp> = ({classes,login}) => {
         const status = response.status;
         if (status === 201) {
           setSuccess(true);
-          console.log(response.data.message);
           setServerData(response.data.message);
           setTimeout(()=>{
             login(true)
