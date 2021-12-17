@@ -11,7 +11,7 @@ import {
   TablePagination,
 } from "@mui/material";
 import { StyleRules, WithStyles, withStyles } from "@mui/styles";
-import { DataGrid, GridColumns } from "@mui/x-data-grid";
+import { DataGrid, GridColumns, GridSortModel } from "@mui/x-data-grid";
 import axios from "axios";
 import * as React from "react";
 
@@ -84,20 +84,26 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
   const [failure, setFailure] = React.useState(false);
   const [rowCount, setRowCount] = React.useState(0);
   const [pageLimit, setPageLimit] = React.useState(25);
+  const [count, setCount] = React.useState(0);
   // var pageLimit =5
-  const [page, setPage] = React.useState(1);
+  const [page, setPage] = React.useState(0);
+  const [sortObject, setSortObject] = React.useState<GridSortModel>([{
+    field:'itemName',
+    sort: 'asc'
+  }]);
   
   const getData = () => {
     axios
       .get(
-        `/getItems?sellerId=61b064ae6822a02a735fe011&limit=${pageLimit}&page=${page}`
+        `/getItems?sellerId=61b064ae6822a02a735fe011&limit=${pageLimit}&page=${page+1}&sort=${sortObject[0].field}&order=${sortObject[0].sort??'asc'}`
       )
       .then((res) => {
-        const result = res.data.data.data;
-        const itemsList = result.map((item: any) => {
+        const result = res.data.data.data; 
+        const itemsList = result.map((item: any) => { 
           return { id: item._id, ...item };
         });
         setItems(itemsList);
+        setCount(res.data.data.totalDocs)
         setDataReloaded(false);
         setDataReloaded(true);
         setSelectedRecords([]);
@@ -106,7 +112,7 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
   };
   React.useEffect(()=>{
     getData()
-  },[pageLimit,page]) 
+  },[pageLimit,page,sortObject]) 
   const deleteItems = () => {
     setDeleteConfirmation(false);
     axios
@@ -209,48 +215,42 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
                   // backgroundColor: 'rgba(255, 7, 0, 0.55)',
                   marginBottom: "35px",
                 },
-                // "& .MuiTablePagination-spacer": {
-                //   //  backgroundColor: 'rgba(255, 7, 0, 0.55)',
-                //   //  position: "relative",
-                //   marginBottom: `35px`,
-                // },
               }}
               rows={items}
               columns={columns}
               sortingMode="server"
-              // rowsPerPageOptions={[5,10,25,50,100]}
+              sortModel={sortObject} 
               rowCount={rowCount}
               checkboxSelection
               className={classes.itemList}
-              // paginationMode={"client"}
-              // onPageSizeChange={(pageSize) => setPageLimit(pageSize)}
               onSelectionModelChange={(ids: any) => {
                 setSelectedRecords(ids);
               }}
               hideFooterPagination={true}
+              onSortModelChange={(model,details)=>{
+                setSortObject(model)
+                console.log(model)
+              }}
             />
           </div>
           <TablePagination
             style={{ border: "1px solid blue" }}
             component="div"
-            count={100}
-            page={0}
-            onPageChange={()=>{}}
+            count={count}
+            page={page}
+            onPageChange={(event,page)=>{ 
+              setPage(page)
+            }}
             rowsPerPage={pageLimit}
             rowsPerPageOptions={[5, 10, 25, 50, 100]}
             onRowsPerPageChange={(pageSize) => {
-              // pageLimit=Number(pageSize.target.value)
-              // console.log('first')
               setPageLimit(Number(pageSize.target.value))
-              // console.log('second')
-
-              setPage(1)
-              // console.log('third')
-
-              // getData()
+              setPage(0) 
             }}
+            showFirstButton={true}
+            showLastButton={true}
           />
-        </div>
+        </div> 
       ) : (
         <div></div>
       )}
