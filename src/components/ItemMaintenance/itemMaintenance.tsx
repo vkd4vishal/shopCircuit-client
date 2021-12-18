@@ -1,5 +1,6 @@
 import {
   Alert,
+  Box,
   Button,
   Collapse,
   Dialog,
@@ -7,6 +8,10 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
   Snackbar,
   TablePagination,
 } from "@mui/material";
@@ -52,7 +57,7 @@ const columns: GridColumns = [
     flex: 1,
     headerAlign: "center",
     align: "center",
-    sortable: false
+    sortable: false,
   },
   //   {
   //     field: "price",
@@ -86,34 +91,61 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
   const [rowCount, setRowCount] = React.useState(0);
   const [pageLimit, setPageLimit] = React.useState(25);
   const [count, setCount] = React.useState(0);
+  const [searchValue, setSearchValue] = React.useState("");
+  const [category, setCategory] = React.useState('0');
+  const [categoryList, setCategoryList] = React.useState([
+    {
+      _id:'0',
+      categoryName: "ALL",
+    },
+  ]);
   // var pageLimit =5
   const [page, setPage] = React.useState(0);
-  const [sortObject, setSortObject] = React.useState<GridSortModel>([{
-    field:'itemName',
-    sort: 'asc'
-  }]);
-  
-  const getData = () => {
-    axios
-      .get(
-        `/getItems?sellerId=61b064ae6822a02a735fe011&limit=${pageLimit}&page=${page+1}&sort=${sortObject[0].field}&order=${sortObject[0].sort??'asc'}`
-      )
-      .then((res) => {
-        const result = res.data.data.data; 
-        const itemsList = result.map((item: any) => { 
-          return { id: item._id, ...item };
-        });
-        setItems(itemsList);
-        setCount(res.data.data.totalDocs)
-        setDataReloaded(false);
-        setDataReloaded(true);
-        setSelectedRecords([]);
-        setRowCount(res.data.data.totalDocs);
+  const [sortObject, setSortObject] = React.useState<GridSortModel>([
+    {
+      field: "itemName",
+      sort: "asc",
+    },
+  ]);
+  const getCategories = () => {
+    axios.get("/getCategories").then((res) => {
+      const result = res.data.data.data.docs.map((category: any) => {
+        return { _id: category._id, categoryName: category.categoryName };
       });
+      setCategoryList([{
+        _id:'0',
+        categoryName: "ALL",
+      }, ...result]);
+    });
   };
-  React.useEffect(()=>{
-    getData()
-  },[pageLimit,page,sortObject]) 
+  React.useEffect(() => {
+    getCategories();
+  }, []);
+  const getData = () => {
+    let getUrl = `/getItems?sellerId=61b064ae6822a02a735fe011&limit=${pageLimit}&page=${
+      page + 1
+    }&sort=${sortObject[0].field}&order=${
+      sortObject[0].sort ?? "asc"
+    }&search=${searchValue}`;
+    if (category !== '0') {
+      getUrl = getUrl + `&category=${category}`;
+    }
+    axios.get(getUrl).then((res) => {
+      const result = res.data.data.data;
+      const itemsList = result.map((item: any) => {
+        return { id: item._id, ...item };
+      });
+      setItems(itemsList);
+      setCount(res.data.data.totalDocs);
+      setDataReloaded(false);
+      setDataReloaded(true);
+      setSelectedRecords([]);
+      setRowCount(res.data.data.totalDocs);
+    });
+  };
+  React.useEffect(() => {
+    getData();
+  }, [pageLimit, page, sortObject,category]);
   const deleteItems = () => {
     setDeleteConfirmation(false);
     axios
@@ -126,7 +158,7 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
           headers: {
             userid: "61b064ae6822a02a735fe011",
             token:
-              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjFiMDY0YWU2ODIyYTAyYTczNWZlMDExIn0sImlhdCI6MTYzOTE2MTg4MywiZXhwIjoxNjM5MTk3ODgzfQ.9j3HEsxEIz-YgY3v3wExRTMNdxwO3UwJLT3BnW6JW8Q",
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjFiMDY0YWU2ODIyYTAyYTczNWZlMDExIn0sImlhdCI6MTYzOTgxNzA2NywiZXhwIjoxNjM5ODUzMDY3fQ.0zXQuamihbaxDhUpebH-XNc2R9kfTmLgnH1XiSI6BDg",
           },
         }
       )
@@ -150,11 +182,12 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
   const hideDeleteConfirmation = () => {
     setDeleteConfirmation(false);
   };
-  
+
   const handleClose = () => {
     setSuccess(false);
     setFailure(false);
   };
+
   return (
     <div style={{ height: "90%", width: "100%" }}>
       <Snackbar
@@ -205,10 +238,31 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
         <div className={classes.table}>
           <div
             style={{
-              border: "1px solid red",
-              height: `${(items.length+3) * 52}px`,
+              // border: "1px solid red",
+              height: `${(items.length + 3) * 52}px`,
             }}
           >
+            
+            <Box  >
+              <FormControl >
+                <InputLabel id="demo-simple-select-label">Category</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={category}
+                  label="Category"
+                  onChange={(change) => setCategory(change.target.value)}
+                >
+                  {categoryList.map((category) => {
+                    return (
+                      <MenuItem value={category._id}>
+                        {category.categoryName}
+                      </MenuItem>
+                    );
+                  })}
+                </Select>
+              </FormControl>
+            </Box>
             <DataGrid
               sx={{
                 m: 2,
@@ -220,41 +274,41 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
               rows={items}
               columns={columns}
               sortingMode="server"
-              sortModel={sortObject} 
+              sortModel={sortObject}
               rowCount={rowCount}
-              disableColumnFilter={true}
+              disableColumnFilter={false}
               disableColumnSelector={true}
               disableColumnMenu={true}
               checkboxSelection
-              className={classes.itemList} 
+              className={classes.itemList}
               onSelectionModelChange={(ids: any) => {
                 setSelectedRecords(ids);
               }}
               hideFooterPagination={true}
-              onSortModelChange={(model,details)=>{
-                setSortObject(model)
-                console.log(model)
+              onSortModelChange={(model, details) => {
+                setSortObject(model);
+                console.log(model);
               }}
             />
           </div>
           <TablePagination
-            style={{ border: "1px solid blue" }}
+            // style={{ border: "1px solid blue" }}
             component="div"
             count={count}
             page={page}
-            onPageChange={(event,page)=>{ 
-              setPage(page)
+            onPageChange={(event, page) => {
+              setPage(page);
             }}
             rowsPerPage={pageLimit}
             rowsPerPageOptions={[5, 10, 25, 50, 100]}
             onRowsPerPageChange={(pageSize) => {
-              setPageLimit(Number(pageSize.target.value))
-              setPage(0) 
+              setPageLimit(Number(pageSize.target.value));
+              setPage(0);
             }}
             showFirstButton={true}
             showLastButton={true}
           />
-        </div> 
+        </div>
       ) : (
         <div></div>
       )}
