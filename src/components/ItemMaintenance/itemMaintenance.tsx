@@ -52,6 +52,7 @@ const columns: GridColumns = [
     flex: 1,
     headerAlign: "center",
     align: "center",
+    sortable: false
   },
   //   {
   //     field: "price",
@@ -221,8 +222,11 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
               sortingMode="server"
               sortModel={sortObject} 
               rowCount={rowCount}
+              disableColumnFilter={true}
+              disableColumnSelector={true}
+              disableColumnMenu={true}
               checkboxSelection
-              className={classes.itemList}
+              className={classes.itemList} 
               onSelectionModelChange={(ids: any) => {
                 setSelectedRecords(ids);
               }}
