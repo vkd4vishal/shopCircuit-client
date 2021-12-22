@@ -39,7 +39,6 @@ const RatingAndReviewListView: React.FC<ratingAndReviewListProp> = ({ classes })
       },
     })
       .then((resp) => {
-        console.log(resp.data.data.data.data)
         setRatingReviewResponse(resp.data.data.data.data)
       })
       .catch((error: any) => console.log("error", error));
@@ -50,7 +49,7 @@ const RatingAndReviewListView: React.FC<ratingAndReviewListProp> = ({ classes })
 
   return (
     <div className={classes.root}>
-        <SearchBarForm setIsSearch={setSearch}/>
+        <SearchBarForm setIsSearch={setSearch} label={'Search'}/>
        <br/>
     <Button variant="outlined" onClick={()=>{toCreateReview()}}>Edit Review</Button>
 

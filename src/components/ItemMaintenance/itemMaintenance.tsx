@@ -19,6 +19,7 @@ import { StyleRules, WithStyles, withStyles } from "@mui/styles";
 import { DataGrid, GridColumns, GridSortModel } from "@mui/x-data-grid";
 import axios from "axios";
 import * as React from "react";
+import SearchBarForm from "../searchBar/searchBar";
 
 const styles: StyleRules = {
   root: {},
@@ -91,7 +92,7 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
   const [rowCount, setRowCount] = React.useState(0);
   const [pageLimit, setPageLimit] = React.useState(25);
   const [count, setCount] = React.useState(0);
-  const [searchValue, setSearchValue] = React.useState("");
+  const [search,setSearch]=React.useState("")
   const [category, setCategory] = React.useState('0');
   const [categoryList, setCategoryList] = React.useState([
     {
@@ -126,7 +127,7 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
       page + 1
     }&sort=${sortObject[0].field}&order=${
       sortObject[0].sort ?? "asc"
-    }&search=${searchValue}`;
+    }&search=${search}`;
     if (category !== '0') {
       getUrl = getUrl + `&category=${category}`;
     }
@@ -145,7 +146,7 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
   };
   React.useEffect(() => {
     getData();
-  }, [pageLimit, page, sortObject,category]);
+  }, [pageLimit, page, sortObject,category,search]);
   const deleteItems = () => {
     setDeleteConfirmation(false);
     axios
@@ -234,7 +235,10 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
           </Button>
         </DialogActions>
       </Dialog>
+      
+      <SearchBarForm setIsSearch={setSearch} label={'Search by item name or brand...'}/>
       {dataReloaded ? (
+        
         <div className={classes.table}>
           <div
             style={{
