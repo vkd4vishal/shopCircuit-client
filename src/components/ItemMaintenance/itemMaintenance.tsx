@@ -36,6 +36,20 @@ const styles: StyleRules = {
     flexDirection: "column",
   },
 };
+const renderDetailsButton = () => {
+  return (
+      <strong>
+          <Button
+              variant="contained"
+              color="info"
+              size="small"
+              onClick={(res)=>console.log(res)}
+          >
+              EDIT
+          </Button>
+      </strong>
+  )
+}
 const columns: GridColumns = [
   {
     field: "itemName",
@@ -60,14 +74,12 @@ const columns: GridColumns = [
     align: "center",
     sortable: false,
   },
-  //   {
-  //     field: "price",
-  //     headerName: "Price",
-  //     type: "number",
-  //     flex: 0.5,
-  //     headerAlign: "center",
-  //     align: "center",
-  //   },
+  {
+    field: 'editButton',
+    headerName: '',
+    flex: 0.2,
+    renderCell: renderDetailsButton,  
+},
   //   {
   //     field: "weight",
   //     headerName: "Weight",
@@ -291,8 +303,8 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
               hideFooterPagination={true}
               onSortModelChange={(model, details) => {
                 setSortObject(model);
-                console.log(model);
               }}
+              disableSelectionOnClick={true}
             />
           </div>
           <TablePagination
