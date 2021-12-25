@@ -20,7 +20,7 @@ import { DataGrid, GridColumns, GridSortModel } from "@mui/x-data-grid";
 import axios from "axios";
 import * as React from "react";
 import SearchBarForm from "../searchBar/searchBar";
-
+import { useHistory } from "react-router-dom";
 const styles: StyleRules = {
   root: {},
   itemList: {
@@ -305,6 +305,11 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
                 setSortObject(model);
               }}
               disableSelectionOnClick={true}
+              onCellClick={(params,event,details)=>{
+                if(params.field === 'editButton'){
+                  props.history.push(`/seller/item-maintenance?_id=`)
+                }
+              }}
             />
           </div>
           <TablePagination
