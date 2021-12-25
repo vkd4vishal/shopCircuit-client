@@ -4,6 +4,8 @@ import axios from "axios";
 import React, { useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import AlertForm from "../Alert/Alert";
+
+import Cookies from "universal-cookie";
 // import RatingAndReviewBoxForm from "./ratingAndReviewBox";
 const styles: StyleRules = {
   reviewTextField: {
@@ -34,10 +36,10 @@ const RatingAndReviewView: React.FC<ratingAndReviewProp> = ({ classes }) => {
   const [ratingCount, setRating] = React.useState(0);
   const [review, setReview] = React.useState("");
   const [ratingId,setRatingId]=React.useState("");
+  const cookies = new Cookies();
   const headers = {
-    userId: "61b2a26ebb2d788093814604",
     token:
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjFiMmEyNmViYjJkNzg4MDkzODE0NjA0In0sImlhdCI6MTYzOTQxMTQzMSwiZXhwIjoxNjM5NDQ3NDMxfQ.3p5cIHxwFg7NjNLt8YQpW-wAum6rKDRMa4iIPU6NEmY",
+    cookies.get("token"),
     itemId: "61a1da9bcd436d7b3860aac9",
   };
   var getItemRating = () => {
@@ -47,11 +49,9 @@ const RatingAndReviewView: React.FC<ratingAndReviewProp> = ({ classes }) => {
       params: {
         isSeller: false,
         itemId: "61a1da9bcd436d7b3860aac9",
-        userId:headers.userId
       },
     })
       .then((resp) => {
-        console.log(resp.data.data.data.data)
         // setRatingReviewResponse(resp.data.data.data.data[0])
         // console.log(ratingReviewResponse[0].rating)
         const currRating :any=resp.data.data.data.data[0].rating??0

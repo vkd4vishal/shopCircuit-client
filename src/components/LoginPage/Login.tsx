@@ -3,6 +3,7 @@ import { StyleRules, WithStyles, withStyles } from "@mui/styles";
 import axios from "axios";
 import React from "react";
 import Link from "@mui/material/Link";
+import Cookies from "universal-cookie";
 const styles = (): StyleRules => {
   return {
     root: {
@@ -54,9 +55,9 @@ const styles = (): StyleRules => {
   };
 };
 interface ILoginProp extends WithStyles<typeof styles> {
-  login:(value:boolean)=>void
+  login: (value: boolean) => void;
 }
-const LoginFormView: React.FC<ILoginProp> = ({ classes,login }) => {
+const LoginFormView: React.FC<ILoginProp> = ({ classes, login }) => {
   //States
   const [userName, setUserName] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -76,13 +77,11 @@ const LoginFormView: React.FC<ILoginProp> = ({ classes,login }) => {
     }
     setUserName(e.target.value);
   };
-
   const handleSubmit = (e: React.FormEvent<EventTarget>) => {
     e.preventDefault();
     if (nameErr) {
       alert(nameErrMsg);
     }
-    console.log("form submitted");
     var body;
     body = { password: password };
     if (isEmail(userName)) {
@@ -90,11 +89,16 @@ const LoginFormView: React.FC<ILoginProp> = ({ classes,login }) => {
     } else {
       body = { ...body, userName: userName };
     }
-    axios.post("/login", body).then((response) => {
-      console.log(response.data);
-      setServerData(response.data.message);
-      setSuccess(true);
-    }).catch((err)=> console.log(err.message));
+    axios
+      .post("/login", body)
+      .then((response) => {
+        setServerData(response.data.message);
+        setSuccess(true);
+        const cookies = new Cookies();
+        cookies.set("token", response.data.data.token, { path: "/" });
+        // console.log(cookies.get("token"));
+      })
+      .catch((err) => console.log(err.message));
   };
 
   const isEmail = (value: string) => {
@@ -143,9 +147,15 @@ const LoginFormView: React.FC<ILoginProp> = ({ classes,login }) => {
         >
           Login
         </Button>
-        <Link variant="body2"  onClick={()=>{login(false)}} style={{cursor:'pointer'}}>
-        Don't have an account? Create now.
-      </Link>
+        <Link
+          variant="body2"
+          onClick={() => {
+            login(false);
+          }}
+          style={{ cursor: "pointer" }}
+        >
+          Don't have an account? Create now.
+        </Link>
       </form>
     </div>
   );
