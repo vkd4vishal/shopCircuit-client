@@ -21,6 +21,7 @@ import axios from "axios";
 import * as React from "react";
 import SearchBarForm from "../searchBar/searchBar";
 import { useNavigate  } from "react-router-dom";
+import Cookies from "universal-cookie";
 
 const styles: StyleRules = {
   root: {},
@@ -95,6 +96,8 @@ interface ItemListProp extends WithStyles<typeof styles> {}
 const ItemListFormView: React.FC<ItemListProp> = ({
   classes,
 }) => {
+  const cookies = new Cookies();
+  const token = cookies.get("token")
   const navigate = useNavigate();
   const [items, setItems] = React.useState([]);
   const [selectedRecords, setSelectedRecords] = React.useState([]);
@@ -171,9 +174,7 @@ const ItemListFormView: React.FC<ItemListProp> = ({
         },
         {
           headers: {
-            userid: "61b064ae6822a02a735fe011",
-            token:
-              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjFiMDY0YWU2ODIyYTAyYTczNWZlMDExIn0sImlhdCI6MTYzOTgxNzA2NywiZXhwIjoxNjM5ODUzMDY3fQ.0zXQuamihbaxDhUpebH-XNc2R9kfTmLgnH1XiSI6BDg",
+            token
           },
         }
       )
