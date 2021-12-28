@@ -24,6 +24,11 @@ const styles = {
   },
 };
 interface ItemMaintenanceProp extends WithStyles<typeof styles> {}
+
+interface ImageInterface {
+  source: string;
+}
+type ImageInterfaceType = ImageInterface[];
 const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
   classes,
 }) => {
@@ -42,11 +47,11 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
     weight: 0,
   });
   const [fetched, setFetched] = React.useState(false);
-  const [showImage, setShowImage] = React.useState([{ source: "" }]);
+  const [showImage, setShowImage] = React.useState<ImageInterfaceType>([]);
   const getCategories = () => {
     axios.get("/getCategories").then((res) => {
       const result = res.data.data.data.docs.map((category: any) => {
-        return { _id: category._id, categoryName: category.categoryName };
+        return { _id: category._id, categoryName: category.categoryName };   
       });
       setCategoryList([
         {
@@ -97,6 +102,7 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
         res.data.data.itemImages.forEach((image: any) => {
           getItemImage(image._id);
         });
+        console.log('sdsa',showImage)
       });
   };
   React.useEffect(() => {
@@ -112,6 +118,7 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
       weight: data.get("weight"),
       category,
     });
+    console.log(showImage)
   };
   return (
     <div className={classes.root}>
