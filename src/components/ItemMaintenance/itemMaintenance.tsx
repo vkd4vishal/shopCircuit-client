@@ -13,7 +13,7 @@ import {
   MenuItem,
   Select,
 } from "@mui/material";
-
+import Cookies from "universal-cookie";
 const styles = {
   root: {
     height: "400px",
@@ -25,10 +25,10 @@ const styles = {
 };
 interface ItemMaintenanceProp extends WithStyles<typeof styles> {}
 
-interface ImageInterface {
-  source: string;
-}
-type ImageInterfaceType = ImageInterface[];
+// interface ImageInterface {
+//   source: string;
+// }
+type ImageInterfaceType = string[];
 const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
   classes,
 }) => {
@@ -47,11 +47,15 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
     weight: 0,
   });
   const [fetched, setFetched] = React.useState(false);
+  const [imageIndex, setImageIndex] = React.useState(0);
+  let uploadImages: any[] = [];
   const [showImage, setShowImage] = React.useState<ImageInterfaceType>([]);
+  const cookies = new Cookies();
+  const token = cookies.get("token");
   const getCategories = () => {
     axios.get("/getCategories").then((res) => {
       const result = res.data.data.data.docs.map((category: any) => {
-        return { _id: category._id, categoryName: category.categoryName };   
+        return { _id: category._id, categoryName: category.categoryName };
       });
       setCategoryList([
         {
@@ -67,9 +71,9 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
   }, []);
   // const cookies = new Cookies();
   const id = state.id;
-
+  let sources: any[] = [];
   const getItemImage = (itemimageid: string) => {
-    axios
+    const res = axios
       .get("/getItemImage", {
         headers: {
           itemimageid,
@@ -81,32 +85,59 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
           new Uint8Array(res.data).reduce(
             (data, byte) => data + String.fromCharCode(byte),
             ""
-          ) 
+          )
         );
-        setShowImage([...showImage, { source: "data:;base64," + base64 }]);
-        setFetched(true);
+        // setShowImage([...showImage,  "data:;base64," + base64]);
+        showImage.push("data:;base64," + base64);
 
+        setFetched(true);
       });
   };
-  const getItemDetails = () => {
+  const getItemDetails = (isImageUpload?: boolean) => {
     axios
       .get("/getItemDetails", {
         headers: {
           itemid: id,
         },
-      }) 
+      })
       .then((res) => {
-        setItemDetails(res.data.data.itemDetails);
-        setCategory(res.data.data.itemDetails.category);
-        setShowImage([])
+        showImage.length=0
         res.data.data.itemImages.forEach((image: any) => {
-          getItemImage(image._id);
-        });
-        console.log('sdsa',showImage)
+          getItemImage(image._id); 
+        })
+        if (!isImageUpload) {
+          setItemDetails(res.data.data.itemDetails);
+          setCategory(res.data.data.itemDetails.category);
+        }
       });
   };
+  const  uploadItemImages = async(images: any) => { 
+    const formData = new FormData();
+    images.forEach((image: any) => {
+      formData.append("itemImage", image);
+    });
+    axios
+      .post("/uploadItemImages", formData, {
+        headers: {
+          itemid: id,
+          token,
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then((res) => {
+        // setItemDetails(res.data.data.itemDetails);
+        // setCategory(res.data.data.itemDetails.category);
+        // res.data.data.itemImages.forEach((image: any) => {
+        //   getItemImage(image._id);
+        // });
+        console.log(res);
+        
+        getItemDetails(true)
+      })
+      .catch((err) => console.log(err));
+  };
   React.useEffect(() => {
-    getItemDetails(); 
+    getItemDetails();
   }, []);
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -118,28 +149,75 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
       weight: data.get("weight"),
       category,
     });
-    console.log(showImage)
+    console.log(uploadImages);
   };
   return (
     <div className={classes.root}>
-      {fetched &&
-        showImage.map((image:any) => {
-
-          return (
-            <img
-              className={classes.image}
-              src={image.source}
-              alt="item image"
-            /> 
-          );
-        })}
+      {fetched && (
+        <div>
+          <Button
+            type="submit"
+            variant="contained"
+            sx={{ mt: 3, mb: 2 }}
+            style={{ marginTop: "10px" }}
+            onClick={() => {
+              if (imageIndex - 1 >= 0) {
+                setImageIndex(imageIndex - 1);
+              }
+            }}
+          >
+            PREV
+          </Button>
+          <img
+            className={classes.image}
+            src={showImage[imageIndex]}
+            alt="item image"
+          />
+          <Button
+            type="submit"
+            variant="contained"
+            sx={{ mt: 3, mb: 2 }}
+            style={{ marginTop: "10px" }}
+            onClick={() => {
+              if (imageIndex + 1 < showImage.length) {
+                setImageIndex(imageIndex + 1);
+              }
+            }}
+          >
+            NEXT
+          </Button>
+        </div>
+      )}
+      <input
+        type="file"
+        name="myImage"
+        onChange={(event: any) => {
+          console.log(event.target.files);
+          // setSelectedImage(event.target.files);
+          uploadImages = [...event.target.files];
+        }}
+        multiple
+      />
+      <Button
+        type="submit"
+        variant="contained"
+        sx={{ mt: 3, mb: 2 }}
+        style={{ marginTop: "10px" }}
+        onClick={async() => { 
+         await uploadItemImages(uploadImages)
+        //  .then(()=>setImageIndex(showImage.length) ); 
+         
+        }}
+      >
+        UPLOAD IMAGE
+      </Button>
       <form onSubmit={handleSubmit}>
         <TextField
           required
           fullWidth
           id="itemName"
           label="Item Name"
-          autoFocus 
+          autoFocus
           size="small"
           style={{ marginTop: "10px" }}
           value={itemDetails.itemName}
