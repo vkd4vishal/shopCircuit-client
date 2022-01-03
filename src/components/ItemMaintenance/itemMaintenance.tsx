@@ -72,8 +72,8 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
   // const cookies = new Cookies();
   const id = state.id;
   let sources: any[] = [];
-  const getItemImage = (itemimageid: string) => {
-    const res = axios
+  const getItemImage = async (itemimageid: string) => {
+   await axios
       .get("/getItemImage", {
         headers: {
           itemimageid,
@@ -89,34 +89,34 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
         );
         // setShowImage([...showImage,  "data:;base64," + base64]);
         showImage.push("data:;base64," + base64);
-
         setFetched(true);
       });
   };
-  const getItemDetails = (isImageUpload?: boolean) => {
-    axios
+  const getItemDetails = async (isImageUpload?: boolean) => {
+    await axios
       .get("/getItemDetails", {
         headers: {
           itemid: id,
         },
       })
-      .then((res) => {
-        showImage.length=0
-        res.data.data.itemImages.forEach((image: any) => {
-          getItemImage(image._id); 
-        })
+      .then(async (res) => {
+        showImage.length = 0;
+        // showImage=[]
+        await Promise.all( res.data.data.itemImages.map(async (image: any) => {
+          await getItemImage(image._id);
+        }))
         if (!isImageUpload) {
           setItemDetails(res.data.data.itemDetails);
           setCategory(res.data.data.itemDetails.category);
-        }
+        } 
       });
   };
-  const  uploadItemImages = async(images: any) => { 
+  const uploadItemImages = async (images: any) => {
     const formData = new FormData();
     images.forEach((image: any) => {
       formData.append("itemImage", image);
     });
-    axios
+    await axios
       .post("/uploadItemImages", formData, {
         headers: {
           itemid: id,
@@ -124,17 +124,16 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
           "Content-Type": "multipart/form-data",
         },
       })
-      .then((res) => {
+      .then(async (res) => {
         // setItemDetails(res.data.data.itemDetails);
         // setCategory(res.data.data.itemDetails.category);
         // res.data.data.itemImages.forEach((image: any) => {
         //   getItemImage(image._id);
         // });
-        console.log(res);
-        
-        getItemDetails(true)
+        await getItemDetails(true);
       })
       .catch((err) => console.log(err));
+    return;
   };
   React.useEffect(() => {
     getItemDetails();
@@ -149,7 +148,7 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
       weight: data.get("weight"),
       category,
     });
-    console.log(uploadImages);
+    console.log("showImage", showImage);
   };
   return (
     <div className={classes.root}>
@@ -192,8 +191,6 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
         type="file"
         name="myImage"
         onChange={(event: any) => {
-          console.log(event.target.files);
-          // setSelectedImage(event.target.files);
           uploadImages = [...event.target.files];
         }}
         multiple
@@ -203,10 +200,9 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
         variant="contained"
         sx={{ mt: 3, mb: 2 }}
         style={{ marginTop: "10px" }}
-        onClick={async() => { 
-         await uploadItemImages(uploadImages)
-        //  .then(()=>setImageIndex(showImage.length) ); 
-         
+        onClick={async () => {
+          await uploadItemImages(uploadImages)
+          setImageIndex(showImage.length-1)
         }}
       >
         UPLOAD IMAGE
