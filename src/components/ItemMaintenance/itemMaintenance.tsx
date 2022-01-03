@@ -29,6 +29,7 @@ interface ItemMaintenanceProp extends WithStyles<typeof styles> {}
 //   source: string;
 // }
 type ImageInterfaceType = string[];
+type UploadImageInterfaceType = any[];
 const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
   classes,
 }) => {
@@ -48,7 +49,8 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
   });
   const [fetched, setFetched] = React.useState(false);
   const [imageIndex, setImageIndex] = React.useState(0);
-  let uploadImages: any[] = [];
+  // let uploadImages: any[] = [];
+  const [uploadImages,setUploadImages]  = React.useState<UploadImageInterfaceType>([]);
   const [showImage, setShowImage] = React.useState<ImageInterfaceType>([]);
   const cookies = new Cookies();
   const token = cookies.get("token");
@@ -73,7 +75,7 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
   const id = state.id;
   let sources: any[] = [];
   const getItemImage = async (itemimageid: string) => {
-   await axios
+    await axios
       .get("/getItemImage", {
         headers: {
           itemimageid,
@@ -102,13 +104,15 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
       .then(async (res) => {
         showImage.length = 0;
         // showImage=[]
-        await Promise.all( res.data.data.itemImages.map(async (image: any) => {
-          await getItemImage(image._id);
-        }))
+        await Promise.all(
+          res.data.data.itemImages.map(async (image: any) => {
+            await getItemImage(image._id);
+          })
+        );
         if (!isImageUpload) {
           setItemDetails(res.data.data.itemDetails);
           setCategory(res.data.data.itemDetails.category);
-        } 
+        }
       });
   };
   const uploadItemImages = async (images: any) => {
@@ -148,7 +152,7 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
       weight: data.get("weight"),
       category,
     });
-    console.log("showImage", showImage);
+    console.log("uploadImages", uploadImages);
   };
   return (
     <div className={classes.root}>
@@ -191,7 +195,7 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
         type="file"
         name="myImage"
         onChange={(event: any) => {
-          uploadImages = [...event.target.files];
+          setUploadImages([...event.target.files]) 
         }}
         multiple
       />
@@ -201,8 +205,8 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
         sx={{ mt: 3, mb: 2 }}
         style={{ marginTop: "10px" }}
         onClick={async () => {
-          await uploadItemImages(uploadImages)
-          setImageIndex(showImage.length-1)
+          await uploadItemImages(uploadImages);
+          setImageIndex(showImage.length - 1);
         }}
       >
         UPLOAD IMAGE
