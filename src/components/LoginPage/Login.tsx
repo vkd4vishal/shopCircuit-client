@@ -1,4 +1,4 @@
-import { Alert, Button, Snackbar, TextField } from "@mui/material";
+import { Alert, Box, Button, CircularProgress, Snackbar, TextField } from "@mui/material";
 import { StyleRules, WithStyles, withStyles } from "@mui/styles";
 import axios from "axios";
 import React from "react";
@@ -65,7 +65,7 @@ const LoginFormView: React.FC<ILoginProp> = ({ classes, login }) => {
   const [serverData, setServerData] = React.useState("");
   const [nameErr, setNameErr] = React.useState(false);
   const [nameErrMsg, setNameErrMsg] = React.useState("");
-
+  const [loader, setLoader] = React.useState(false);
   //Functions
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -77,10 +77,11 @@ const LoginFormView: React.FC<ILoginProp> = ({ classes, login }) => {
     }
     setUserName(e.target.value);
   };
-  const handleSubmit = (e: React.FormEvent<EventTarget>) => {
+  const handleSubmit =async (e: React.FormEvent<EventTarget>) => {
+    setLoader(true)
     e.preventDefault();
     if (nameErr) {
-      alert(nameErrMsg);
+      alert(nameErrMsg); 
     }
     var body;
     body = { password: password };
@@ -89,16 +90,16 @@ const LoginFormView: React.FC<ILoginProp> = ({ classes, login }) => {
     } else {
       body = { ...body, userName: userName };
     }
-    axios
+    await axios
       .post("/login", body)
       .then((response) => {
         setServerData(response.data.message);
         setSuccess(true);
         const cookies = new Cookies();
         cookies.set("token", response.data.data.token, { path: "/" });
-        // console.log(cookies.get("token"));
       })
       .catch((err) => console.log(err.message));
+      setLoader(false)
   };
 
   const isEmail = (value: string) => {
@@ -110,6 +111,9 @@ const LoginFormView: React.FC<ILoginProp> = ({ classes, login }) => {
   };
   return (
     <div className={classes.root}>
+       {loader && <Box sx={{ display: 'flex' }}>
+      <CircularProgress />
+    </Box>}
       <Snackbar open={success} autoHideDuration={6000} onClose={handleClose}>
         <Alert
           onClose={handleClose}
