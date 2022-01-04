@@ -1,9 +1,17 @@
-import { Alert, Box, Button, CircularProgress, Snackbar, TextField } from "@mui/material";
+import {
+  Alert,
+  Box,
+  Button,
+  CircularProgress,
+  Snackbar,
+  TextField,
+} from "@mui/material";
 import { StyleRules, WithStyles, withStyles } from "@mui/styles";
 import axios from "axios";
-import React from "react";
+import React, { useContext } from "react";
 import Link from "@mui/material/Link";
 import Cookies from "universal-cookie";
+import { loaderContext } from "../common/loader/loaderContext";
 const styles = (): StyleRules => {
   return {
     root: {
@@ -64,7 +72,8 @@ const LoginFormView: React.FC<ILoginProp> = ({ classes, login }) => {
   const [serverData, setServerData] = React.useState("");
   const [nameErr, setNameErr] = React.useState(false);
   const [nameErrMsg, setNameErrMsg] = React.useState("");
-  const [loader, setLoader] = React.useState(false);
+  // const [loader, setLoader] = React.useState(false);
+  const { loader, setLoader } = useContext(loaderContext);
   //Functions
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -76,11 +85,11 @@ const LoginFormView: React.FC<ILoginProp> = ({ classes, login }) => {
     }
     setUserName(e.target.value);
   };
-  const handleSubmit =async (e: React.FormEvent<EventTarget>) => {
-    setLoader(true)
+  const handleSubmit = async (e: React.FormEvent<EventTarget>) => {
+    setLoader(true);
     e.preventDefault();
     if (nameErr) {
-      alert(nameErrMsg); 
+      alert(nameErrMsg);
     }
     var body;
     body = { password: password };
@@ -98,7 +107,7 @@ const LoginFormView: React.FC<ILoginProp> = ({ classes, login }) => {
         cookies.set("token", response.data.data.token, { path: "/" });
       })
       .catch((err) => console.log(err.message));
-      setLoader(false)
+    setLoader(false);
   };
 
   const isEmail = (value: string) => {
@@ -110,9 +119,7 @@ const LoginFormView: React.FC<ILoginProp> = ({ classes, login }) => {
   };
   return (
     <div className={classes.root}>
-       {loader && <Box sx={{ display: 'flex' }}>
-      <CircularProgress />
-    </Box>}
+     
       <Snackbar open={success} autoHideDuration={6000} onClose={handleClose}>
         <Alert
           onClose={handleClose}
