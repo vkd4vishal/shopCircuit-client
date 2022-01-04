@@ -58,7 +58,6 @@ interface ILoginProp extends WithStyles<typeof styles> {
   login: (value: boolean) => void;
 }
 const LoginFormView: React.FC<ILoginProp> = ({ classes, login }) => {
-  //States
   const [userName, setUserName] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [success, setSuccess] = React.useState(false);
