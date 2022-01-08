@@ -14,21 +14,16 @@ function App() {
   // const value = useMemo(() => ({ loader, setLoader }), [loader, setLoader]);
   return (
     <>
-      <Router>
-      <loaderContext.Provider value={{ loader, setLoader }}>   
+      <loaderContext.Provider value={{ loader, setLoader }}>
+        <Router>
+          <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/signup" element={<SignUpForm login={() => {}} />} />
             <Route path="/rating" element={<RatingAndReviewForm />} />
             <Route path="/ratingList" element={<RatingAndReviewListForm />} />
-          </loaderContext.Provider>
-        <Routes>
-         
-
-          {/* <Route path="/login" element={<LoginForm />} /> */}
-          {/* Lession always keep 404 route at last */}
-          {/* <Route path="/" component={ErrorPage} /> */}
-        </Routes>
-      </Router>
+          </Routes>
+        </Router> 
+      </loaderContext.Provider>
     </>
   );
 }
