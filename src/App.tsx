@@ -1,3 +1,4 @@
+import { Box, CircularProgress } from "@mui/material";
 import { useState } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import "./App.css";
@@ -13,8 +14,13 @@ function App() {
 
   // const value = useMemo(() => ({ loader, setLoader }), [loader, setLoader]);
   return (
-    <>
-      <loaderContext.Provider value={{ loader, setLoader }}>
+    <> 
+    {loader && (
+      <Box sx={{position: "fixed", zIndex:"2000",height: `100%`,width:"100%",opacity:"0.6",backgroundColor: "white"}}>
+        <CircularProgress sx={{position: "absolute",top: "50%",left: "50%",marginTop: "50px",marginLeft:"50px"}} />
+      </Box>
+    )}
+      <loaderContext.Provider value={{ loader, setLoader }}> 
         <Router>
           <Routes>
             <Route path="/" element={<HomePage />} />
@@ -22,8 +28,9 @@ function App() {
             <Route path="/rating" element={<RatingAndReviewForm />} />
             <Route path="/ratingList" element={<RatingAndReviewListForm />} />
           </Routes>
-        </Router> 
+        </Router>
       </loaderContext.Provider>
+      
     </>
   );
 }

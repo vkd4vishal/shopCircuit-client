@@ -12,6 +12,7 @@ import React, { useContext } from "react";
 import Link from "@mui/material/Link";
 import Cookies from "universal-cookie";
 import { loaderContext } from "../common/loader/loaderContext";
+import AlertForm from "../Alert/Alert";
 const styles = (): StyleRules => {
   return {
     root: {
@@ -63,12 +64,14 @@ const styles = (): StyleRules => {
   };
 };
 interface ILoginProp extends WithStyles<typeof styles> {
-  login: (value: boolean) => void;
+  login: (value: boolean) => void; 
 }
 const LoginFormView: React.FC<ILoginProp> = ({ classes, login }) => {
   const [userName, setUserName] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [success, setSuccess] = React.useState(false);
+  
+  const [failure, setFailure] = React.useState(false);
   const [serverData, setServerData] = React.useState("");
   const [nameErr, setNameErr] = React.useState(false);
   const [nameErrMsg, setNameErrMsg] = React.useState("");
@@ -85,6 +88,8 @@ const LoginFormView: React.FC<ILoginProp> = ({ classes, login }) => {
     }
     setUserName(e.target.value);
   };
+
+  
   const handleSubmit = async (e: React.FormEvent<EventTarget>) => {
     setLoader(true);
     e.preventDefault();
@@ -106,7 +111,11 @@ const LoginFormView: React.FC<ILoginProp> = ({ classes, login }) => {
         const cookies = new Cookies();
         cookies.set("token", response.data.data.token, { path: "/" });
       })
-      .catch((err) => console.log(err.message));
+      .catch((error) => {
+        console.log(error)
+        setFailure(true);
+        setServerData(JSON.stringify(error.response.data.message));
+      });
     setLoader(false);
   };
 
@@ -120,16 +129,7 @@ const LoginFormView: React.FC<ILoginProp> = ({ classes, login }) => {
   return (
     <div className={classes.root}>
      
-      <Snackbar open={success} autoHideDuration={6000} onClose={handleClose}>
-        <Alert
-          onClose={handleClose}
-          severity="success"
-          sx={{ width: "100%" }}
-          variant="filled"
-        >
-          {serverData}
-        </Alert>
-      </Snackbar>
+     <AlertForm setSuccess={setSuccess} setFailure={setFailure} isSuccess={success} message={serverData} show={success || failure}/>
       <form className={classes.formContainer} onSubmit={handleSubmit}>
         <h3 className={classes.headerText}>Log in to ShopCircuit</h3>
         <TextField

@@ -15,7 +15,8 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { WithStyles, withStyles,StyleRules } from "@mui/styles";
 import axios from "axios";
-import React from "react";
+import React, { useContext } from "react";
+import { loaderContext } from "../common/loader/loaderContext";
 
 
 const styles = (): StyleRules => {
@@ -33,15 +34,16 @@ const SignUpFormView: React.FC<SignUpProp> = ({classes,login}) => {
   const [success, setSuccess] = React.useState(false);
   const [failure, setFailure] = React.useState(false);
   const [serverData, setServerData] = React.useState("");
+  const { loader, setLoader } = useContext(loaderContext);
   const handleClick = () => {
-    console.log(checked);
     setChecked(!checked);
   };
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    setLoader(true)
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     // eslint-disable-next-line no-console
-    axios
+    await axios 
       .post("/signup", {
         userName: data.get("username"),
         firstName: data.get("firstName"),
@@ -54,6 +56,7 @@ const SignUpFormView: React.FC<SignUpProp> = ({classes,login}) => {
         isSeller: checked,
       })
       .then(function (response) {
+        console.log(response)
         const status = response.status;
         if (status === 201) {
           setSuccess(true);
@@ -70,6 +73,7 @@ const SignUpFormView: React.FC<SignUpProp> = ({classes,login}) => {
         setFailure(true);
         setServerData(JSON.stringify(error.response.data.message));
       });
+    setLoader(false)
   };
   const handleClose = () => {
     setSuccess(false);
