@@ -3,7 +3,7 @@ import { StyleRules, WithStyles, withStyles } from "@mui/styles";
 import axios from "axios";
 import React, { useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
-import AlertForm from "../Alert/Alert";
+import AlertForm from "../common/Alert/Alert";
 
 import Cookies from "universal-cookie";
 // import RatingAndReviewBoxForm from "./ratingAndReviewBox";

@@ -4,6 +4,8 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import "./App.css";
 import { loaderContext } from "./components/common/loader/loaderContext";
 import HomePage from "./components/HomePage/HomePage";
+import ItemListForm from "./components/ItemMaintenance/itemList";
+import ItemMaintenanceForm from "./components/ItemMaintenance/itemMaintenance";
 import RatingAndReviewForm from "./components/ratingAndReview/ratingAndReview";
 import RatingAndReviewListForm from "./components/ratingAndReview/ratingAndReviewList";
 // import LoginForm from "./components/LoginPage/Login";
@@ -44,6 +46,11 @@ function App() {
             <Route path="/signup" element={<SignUpForm login={() => {}} />} />
             <Route path="/rating" element={<RatingAndReviewForm />} />
             <Route path="/ratingList" element={<RatingAndReviewListForm />} />
+            <Route path="//seller/item-list" element={<ItemListForm />} />
+            <Route
+              path="/seller/item-maintenance"
+              element={<ItemMaintenanceForm />}
+            />
           </Routes>
         </Router>
       </loaderContext.Provider>

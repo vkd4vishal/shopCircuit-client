@@ -14,6 +14,7 @@ import {
   Select,
 } from "@mui/material";
 import Cookies from "universal-cookie";
+import AlertForm from "../common/Alert/Alert";
 const styles = {
   root: {
     height: "400px",
@@ -28,7 +29,7 @@ interface ItemMaintenanceProp extends WithStyles<typeof styles> {}
 // interface ImageInterface {
 //   source: string;
 // }
-type ImageInterfaceType = string[];
+type ImageInterfaceType = { code: string; id: string }[];
 type UploadImageInterfaceType = any[];
 const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
   classes,
@@ -49,9 +50,16 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
   });
   const [fetched, setFetched] = React.useState(false);
   const [imageIndex, setImageIndex] = React.useState(0);
+
+  const [success, setSuccess] = React.useState(false);
+
+  const [failure, setFailure] = React.useState(false);
+  const [serverData, setServerData] = React.useState("");
   // let uploadImages: any[] = [];
-  const [uploadImages,setUploadImages]  = React.useState<UploadImageInterfaceType>([]);
+  const [uploadImages, setUploadImages] =
+    React.useState<UploadImageInterfaceType>([]);
   const [showImage, setShowImage] = React.useState<ImageInterfaceType>([]);
+  const [currentImageId, setCurrentImageId] = React.useState("");
   const cookies = new Cookies();
   const token = cookies.get("token");
   const getCategories = () => {
@@ -90,11 +98,14 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
           )
         );
         // setShowImage([...showImage,  "data:;base64," + base64]);
-        showImage.push("data:;base64," + base64);
+        showImage.push({ code: `data:;base64,${base64}`, id: itemimageid });
         setFetched(true);
       });
   };
-  const getItemDetails = async (isImageUpload?: boolean) => {
+  const getItemDetails = async (
+    isImageUpload?: boolean,
+    isDetailsSaved?: boolean
+  ) => {
     await axios
       .get("/getItemDetails", {
         headers: {
@@ -104,11 +115,17 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
       .then(async (res) => {
         showImage.length = 0;
         // showImage=[]
-        await Promise.all(
-          res.data.data.itemImages.map(async (image: any) => {
-            await getItemImage(image._id);
-          })
-        );
+
+        if (isDetailsSaved === undefined || isDetailsSaved) {
+          await Promise.all(
+            res.data.data.itemImages.map(async (image: any) => {
+              if (currentImageId.length === 0) {
+                setCurrentImageId(image._id);
+              }
+              await getItemImage(image._id);
+            })
+          );
+        }
         if (!isImageUpload) {
           setItemDetails(res.data.data.itemDetails);
           setCategory(res.data.data.itemDetails.category);
@@ -128,34 +145,123 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
           "Content-Type": "multipart/form-data",
         },
       })
-      .then(async (res) => {
-        // setItemDetails(res.data.data.itemDetails);
-        // setCategory(res.data.data.itemDetails.category);
-        // res.data.data.itemImages.forEach((image: any) => {
-        //   getItemImage(image._id);
-        // });
-        await getItemDetails(true);
+      .then(async (response) => {
+        if (response.status === 200) {
+          setSuccess(true);
+          setServerData(response.data.message);
+
+          await getItemDetails(true);
+        } else {
+          alert(response);
+        }
       })
-      .catch((err) => console.log(err));
+      .catch((error) => {
+        setFailure(true);
+        setServerData(JSON.stringify(error.response.data.message));
+      });
     return;
   };
   React.useEffect(() => {
     getItemDetails();
   }, []);
+
+  //@TODO: delete item image api needed
+  // const deleteItems = () => {
+  //   setDeleteConfirmation(false);
+  //   axios
+  //     .post(
+  //       "/deleteItems",
+  //       {
+  //         items: selectedRecords,
+  //       },
+  //       {
+  //         headers: {
+  //           token
+  //         },
+  //       }
+  //     )
+  //     .then((response) => {
+  //       if (response.status === 200) {
+  //         setSuccess(true);
+  //         setServerData(response.data.message);
+  //         getData();
+  //       } else {
+  //         alert(response);
+  //       }
+  //     })
+  //     .catch((error) => {
+  //       setFailure(true);
+  //       setServerData(JSON.stringify(error.response.data.message));
+  //     });
+  // };
+  const updateItemDetails = (data: {
+    categoryid?: string;
+    itemName?: string;
+    price?: number;
+    weight?: number;
+    brand?: string;
+  }) => {
+    let body = {};
+    if (data.itemName) {
+      body = { ...body, itemName: data.itemName };
+    }
+    if (data.price) {
+      body = { ...body, price: data.price };
+    }
+    if (data.weight) {
+      body = { ...body, weight: data.weight };
+    }
+    if (data.brand) {
+      body = { ...body, brand: data.brand };
+    }
+    let headers;
+    headers = {
+      token,
+      itemid: id,
+    };
+    if (data.categoryid) {
+      headers = { ...headers, categoryid: data.categoryid };
+    }
+    axios
+      .put("/updateItemDetails", body, {
+        headers,
+      })
+      .then(async (response) => {
+        if (response.status === 200) {
+          setSuccess(true);
+          setServerData(response.data.message);
+
+          await getItemDetails(undefined, true);
+        } else {
+          alert(response);
+        }
+      })
+      .catch((error) => {
+        setFailure(true);
+        setServerData(JSON.stringify(error.response.data.message));
+      });
+  };
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      itemName: data.get("itemName"),
-      brand: data.get("brand"),
-      price: data.get("price"),
-      weight: data.get("weight"),
-      category,
+    updateItemDetails({
+      itemName: data.get("itemName")?.toString(),
+      brand: data.get("brand")?.toString(),
+      price: Number(data.get("price")),
+      weight: Number(data.get("weight")),
+      categoryid: category,
     });
-    console.log("uploadImages", uploadImages);
   };
+
   return (
     <div className={classes.root}>
+      <AlertForm
+        setSuccess={setSuccess}
+        setFailure={setFailure}
+        isSuccess={success}
+        message={serverData}
+        show={success || failure}
+      />
       {fetched && (
         <div>
           <Button
@@ -173,7 +279,7 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
           </Button>
           <img
             className={classes.image}
-            src={showImage[imageIndex]}
+            src={showImage[imageIndex].code}
             alt="item image"
           />
           <Button
@@ -189,17 +295,30 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
           >
             NEXT
           </Button>
+
+          <Button
+            type="submit"
+            variant="contained"
+            sx={{ mt: 3, mb: 2 }}
+            style={{ marginTop: "10px" }}
+            onClick={() => {
+              console.log(showImage[imageIndex]);
+            }}
+          >
+            DELETE IMAGE
+          </Button>
         </div>
       )}
       <input
         type="file"
         name="myImage"
         onChange={(event: any) => {
-          setUploadImages([...event.target.files]) 
+          setUploadImages([...event.target.files]);
         }}
         multiple
       />
       <Button
+        disabled={uploadImages.length?false:true}
         type="submit"
         variant="contained"
         sx={{ mt: 3, mb: 2 }}
@@ -213,7 +332,6 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
       </Button>
       <form onSubmit={handleSubmit}>
         <TextField
-          required
           fullWidth
           id="itemName"
           label="Item Name"
@@ -229,7 +347,6 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
         />
         <TextField
           name="brand"
-          required
           fullWidth
           id="brand"
           label="Brand"
@@ -243,7 +360,6 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
           }}
         />
         <TextField
-          required
           fullWidth
           id="price"
           label="Price"
@@ -261,7 +377,6 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
           }}
         />
         <TextField
-          required
           fullWidth
           id="weight"
           label="Weight"

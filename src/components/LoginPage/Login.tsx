@@ -12,7 +12,7 @@ import React, { useContext } from "react";
 import Link from "@mui/material/Link";
 import Cookies from "universal-cookie";
 import { loaderContext } from "../common/loader/loaderContext";
-import AlertForm from "../Alert/Alert";
+import AlertForm from "../common/Alert/Alert";
 const styles = (): StyleRules => {
   return {
     root: {
