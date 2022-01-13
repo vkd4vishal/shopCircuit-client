@@ -15,6 +15,7 @@ import {
 } from "@mui/material";
 import Cookies from "universal-cookie";
 import AlertForm from "../common/Alert/Alert";
+import PopUpForm from "../common/popup/popup";
 const styles = {
   root: {
     height: "400px",
@@ -60,6 +61,7 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
     React.useState<UploadImageInterfaceType>([]);
   const [showImage, setShowImage] = React.useState<ImageInterfaceType>([]);
   const [currentImageId, setCurrentImageId] = React.useState("");
+  const [deleteButtonClicked, setdeleteButtonClicked] = React.useState(false);
   const cookies = new Cookies();
   const token = cookies.get("token");
   const getCategories = () => {
@@ -165,35 +167,34 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
     getItemDetails();
   }, []);
 
-  //@TODO: delete item image api needed
-  // const deleteItems = () => {
-  //   setDeleteConfirmation(false);
-  //   axios
-  //     .post(
-  //       "/deleteItems",
-  //       {
-  //         items: selectedRecords,
-  //       },
-  //       {
-  //         headers: {
-  //           token
-  //         },
-  //       }
-  //     )
-  //     .then((response) => {
-  //       if (response.status === 200) {
-  //         setSuccess(true);
-  //         setServerData(response.data.message);
-  //         getData();
-  //       } else {
-  //         alert(response);
-  //       }
-  //     })
-  //     .catch((error) => {
-  //       setFailure(true);
-  //       setServerData(JSON.stringify(error.response.data.message));
-  //     });
-  // };
+  const deleteImage = async () => {
+    axios
+      .post(
+        "/deleteItemImages",
+        {
+          itemImages: [showImage[imageIndex].id],
+        },
+        {
+          headers: {
+            token,
+            itemid:id
+          },
+        }
+      )
+      .then(async (response) => {
+        if (response.status === 200) {
+          setSuccess(true);
+          setServerData(response.data.message);
+          await getItemDetails(true);
+        } else {
+          alert(response);
+        }
+      })
+      .catch((error) => {
+        setFailure(true);
+        setServerData(JSON.stringify(error.response.data.message));
+      });
+  };
   const updateItemDetails = (data: {
     categoryid?: string;
     itemName?: string;
@@ -252,6 +253,9 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
       categoryid: category,
     });
   };
+  const hidePopUp = () => {
+    setdeleteButtonClicked(false);
+  };
 
   return (
     <div className={classes.root}>
@@ -279,7 +283,7 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
           </Button>
           <img
             className={classes.image}
-            src={showImage[imageIndex].code}
+            src={showImage[imageIndex]?.code}
             alt="item image"
           />
           <Button
@@ -302,11 +306,19 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
             sx={{ mt: 3, mb: 2 }}
             style={{ marginTop: "10px" }}
             onClick={() => {
-              console.log(showImage[imageIndex]);
+              setdeleteButtonClicked(true);
             }}
           >
             DELETE IMAGE
           </Button>
+          {deleteButtonClicked && (
+            <PopUpForm
+              popUpType={3}
+              entity={"image"}
+              onClickFunction={deleteImage}
+              hidePopUp={hidePopUp}
+            />
+          )}
         </div>
       )}
       <input
@@ -318,7 +330,7 @@ const ItemMaintenanceFormView: React.FC<ItemMaintenanceProp> = ({
         multiple
       />
       <Button
-        disabled={uploadImages.length?false:true}
+        disabled={uploadImages.length ? false : true}
         type="submit"
         variant="contained"
         sx={{ mt: 3, mb: 2 }}
